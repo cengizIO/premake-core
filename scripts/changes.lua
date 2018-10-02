@@ -37,22 +37,21 @@ local function gather_changes()
 	changes = {}
 
 	for line in output:gmatch("[^\r\n]+") do
-		local change = parse_log(line)
-		changes[change.number] = change
+		table.insert(changes, parse_log(line))
 	end
 
 	return changes
 end
 
 local function format_to_changes(changes)
-	local sort_table = {}
-	for change_number in pairs(changes) do
-		table.insert(sort_table, change_number)
-	end
-	table.sort(sort_table)
 
-	for _, number in pairs(sort_table) do
-		local change = changes[number]
+	changes_copy = changes
+	local function compare_changes(a, b)
+		return a.number < b.number
+	end
+	table.sort(changes, compare_changes)
+
+	for _, change in pairs(changes_copy) do
 		print(string.format(changes_pr_format, change.number, change.description, change.author))
 	end
 end
