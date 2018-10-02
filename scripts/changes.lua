@@ -5,11 +5,10 @@
 local format_separator = "||"
 
 local git_command_raw = 'git log '..
-						'premake/master "^premake/release" '..
+						'%s/master "^%s/release" '..
 						'--merges --first-parent '..
 						'--pretty="%%s%s%%b" '..
 						'--grep="Merge pull request #"'
-local git_command = string.format(git_command_raw, format_separator)
 
 local changes_pr_format = "* PR #%s %s (@%s)"
 
@@ -32,6 +31,7 @@ local function parse_log(line)
 end
 
 local function gather_changes()
+	local git_command = git_command_raw:format(_OPTIONS["remote"], _OPTIONS["remote"], format_separator)
 	local output = os.outputof(git_command)
 
 	changes = {}
@@ -67,6 +67,13 @@ newaction {
 	trigger = "changes",
 	description = "Generate a file containing merged pull requests in CHANGES.txt format",
 	execute = generate_changes
+}
+
+newoption {
+   trigger     = "remote",
+   value       = "remoteName",
+   description = "Git remote to operate on.",
+   default     = "origin",
 }
 
 ---
